@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:easy_pdf_viewer/src/zoomable_widget.dart';
 import 'package:flutter/widgets.dart';
 
@@ -39,6 +40,12 @@ class _PDFPageState extends State<PDFPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _repaint();
+  }
+
+  @override
+  void dispose() {
+    provider.evict();
+    super.dispose();
   }
 
   @override

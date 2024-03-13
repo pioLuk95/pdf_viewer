@@ -60,8 +60,7 @@ class PDFViewer extends StatefulWidget {
 
   final Widget? progressIndicator;
 
-  final Widget Function(BuildContext, int? pageNumber, int? totalPages)?
-      indicatorBuilder;
+  final Widget Function(BuildContext, int? pageNumber, int? totalPages)? indicatorBuilder;
 
   PDFViewer({
     Key? key,
@@ -111,6 +110,14 @@ class _PDFViewerState extends State<PDFViewer> {
     _pageController = widget.controller ?? PageController();
     _pageNumber = _pageController.initialPage + 1;
     if (!widget.lazyLoad) _preloadPages();
+  }
+
+  @override
+  void dispose() {
+    if (widget.controller == null) {
+      _pageController.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -190,18 +197,13 @@ class _PDFViewerState extends State<PDFViewer> {
   }
 
   Widget _drawIndicator() {
-    if (widget.indicatorBuilder != null)
-      return widget.indicatorBuilder!(
-          context, _pageNumber, widget.document.count);
+    if (widget.indicatorBuilder != null) return widget.indicatorBuilder!(context, _pageNumber, widget.document.count);
 
     Widget child = GestureDetector(
       onTap: widget.showPicker && widget.document.count > 1 ? _pickPage : null,
       child: Container(
-        padding:
-            EdgeInsets.only(top: 4.0, left: 16.0, bottom: 4.0, right: 16.0),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4.0),
-            color: widget.indicatorBackground),
+        padding: EdgeInsets.only(top: 4.0, left: 16.0, bottom: 4.0, right: 16.0),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(4.0), color: widget.indicatorBackground),
         child: Text(
           "$_pageNumber/${widget.document.count}",
           style: TextStyle(
@@ -253,9 +255,7 @@ class _PDFViewerState extends State<PDFViewer> {
         children: <Widget>[
           PageView.builder(
             physics:
-                _swipeEnabled && widget.enableSwipeNavigation && !_isLoading
-                    ? null
-                    : NeverScrollableScrollPhysics(),
+                _swipeEnabled && widget.enableSwipeNavigation && !_isLoading ? null : NeverScrollableScrollPhysics(),
             onPageChanged: (page) {
               setState(() {
                 _pageNumber = page + 1;
@@ -268,14 +268,11 @@ class _PDFViewerState extends State<PDFViewer> {
             itemCount: _pages?.length ?? 0,
             itemBuilder: (context, index) => _pages![index] == null
                 ? Center(
-                    child:
-                        widget.progressIndicator ?? CircularProgressIndicator(),
+                    child: widget.progressIndicator ?? CircularProgressIndicator(),
                   )
                 : _pages![index]!,
           ),
-          (widget.showIndicator && !_isLoading)
-              ? _drawIndicator()
-              : Container(),
+          (widget.showIndicator && !_isLoading) ? _drawIndicator() : Container(),
         ],
       ),
       floatingActionButton: widget.showPicker && widget.document.count > 1
@@ -333,36 +330,32 @@ class _PDFViewerState extends State<PDFViewer> {
                                 },
                         ),
                       ),
-                      widget.showPicker
-                          ? Expanded(child: Text(''))
-                          : SizedBox(width: 1),
+                      widget.showPicker ? Expanded(child: Text('')) : SizedBox(width: 1),
                       Expanded(
                         child: IconButton(
                           icon: Icon(Icons.chevron_right),
                           tooltip: widget.tooltip.next,
-                          onPressed:
-                              _pageNumber == widget.document.count || _isLoading
-                                  ? null
-                                  : () {
-                                      _pageNumber++;
-                                      if (widget.document.count < _pageNumber) {
-                                        _pageNumber = widget.document.count;
-                                      }
-                                      _animateToPage();
-                                    },
+                          onPressed: _pageNumber == widget.document.count || _isLoading
+                              ? null
+                              : () {
+                                  _pageNumber++;
+                                  if (widget.document.count < _pageNumber) {
+                                    _pageNumber = widget.document.count;
+                                  }
+                                  _animateToPage();
+                                },
                         ),
                       ),
                       Expanded(
                         child: IconButton(
                           icon: Icon(Icons.last_page),
                           tooltip: widget.tooltip.last,
-                          onPressed:
-                              _pageNumber == widget.document.count || _isLoading
-                                  ? null
-                                  : () {
-                                      _pageNumber = widget.document.count;
-                                      _jumpToPage();
-                                    },
+                          onPressed: _pageNumber == widget.document.count || _isLoading
+                              ? null
+                              : () {
+                                  _pageNumber = widget.document.count;
+                                  _jumpToPage();
+                                },
                         ),
                       ),
                     ],
